@@ -18,7 +18,6 @@ public class ContaService {
         if (repository.buscarPorCpf(cpf) != null) return null;
 
         Cliente cliente = new Cliente(nome, cpf, senha);
-
         Conta conta;
 
         if (tipo.equalsIgnoreCase("corrente")) {

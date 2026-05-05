@@ -14,7 +14,7 @@ public class CSVExporter {
 
         try (FileWriter writer = new FileWriter(caminho)) {
 
-        	writer.write("Data;Tipo;Valor;Descricao\n");
+        	writer.write("Data;Hora;Tipo;Valor;Descricao\n");
 
             for (Transacao t : conta.getHistorico()) {
                 writer.write(t.toCSV() + "\n");

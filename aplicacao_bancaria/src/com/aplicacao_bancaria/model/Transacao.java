@@ -16,17 +16,24 @@ public class Transacao {
         this.data = LocalDateTime.now();
         this.descricao = descricao;
     }
+    
+    public String getDataFormatada() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return data.format(formatter);
+    }
+
+    public String getHoraFormatada() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return data.format(formatter);
+    }
 
     public String toCSV() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        return data.format(formatter) + ";" + tipo + ";" + valor + ";" + descricao;
+        return getDataFormatada() + ";" + getHoraFormatada() + ";" + tipo + ";" + valor + ";" + descricao;
     }
 
     @Override
     public String toString() {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
         return data.format(formatter) + " - " + tipo + " - R$ " + valor + " - " + descricao;
     }
 }
