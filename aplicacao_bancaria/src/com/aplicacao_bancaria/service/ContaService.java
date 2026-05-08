@@ -3,13 +3,14 @@ package com.aplicacao_bancaria.service;
 import java.time.LocalTime;
 
 import com.aplicacao_bancaria.model.*;
+import com.aplicacao_bancaria.repository.ContaInterfaceRepository;
 import com.aplicacao_bancaria.repository.ContaRepository;
 
 public class ContaService {
 
-	private ContaRepository repository;
+	private ContaInterfaceRepository repository;
 
-	public ContaService(ContaRepository repository) {
+	public ContaService(ContaInterfaceRepository repository) {
 		this.repository = repository;
 	}
 
