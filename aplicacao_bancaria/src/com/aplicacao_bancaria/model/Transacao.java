@@ -5,35 +5,35 @@ import java.time.format.DateTimeFormatter;
 
 public class Transacao {
 
-    private String tipo;
-    private double valor;
-    private LocalDateTime data;
-    private String descricao;
+	private String tipo;
+	private double valor;
+	private LocalDateTime data;
+	private String descricao;
 
-    public Transacao(String tipo, double valor, String descricao) {
-        this.tipo = tipo;
-        this.valor = valor;
-        this.data = LocalDateTime.now();
-        this.descricao = descricao;
-    }
-    
-    public String getDataFormatada() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return data.format(formatter);
-    }
+	public Transacao(String tipo, double valor, String descricao) {
+		this.tipo = tipo;
+		this.valor = valor;
+		this.data = LocalDateTime.now();
+		this.descricao = descricao;
+	}
 
-    public String getHoraFormatada() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        return data.format(formatter);
-    }
+	public String getDataFormatada() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		return data.format(formatter);
+	}
 
-    public String toCSV() {
-        return getDataFormatada() + ";" + getHoraFormatada() + ";" + tipo + ";" + valor + ";" + descricao;
-    }
+	public String getHoraFormatada() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		return data.format(formatter);
+	}
 
-    @Override
-    public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        return data.format(formatter) + " - " + tipo + " - R$ " + valor + " - " + descricao;
-    }
+	public String toCSV() {
+		return getDataFormatada() + ";" + getHoraFormatada() + ";" + tipo + ";" + String.format("%.2f", valor) + ";" + descricao;
+	}
+
+	@Override
+	public String toString() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		return data.format(formatter) + " - " + tipo + " - R$ " + valor + " - " + descricao;
+	}
 }

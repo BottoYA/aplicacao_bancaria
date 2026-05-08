@@ -6,12 +6,12 @@ import com.aplicacao_bancaria.ui.Menu;
 
 public class Main {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        ContaRepository repository = new ContaRepository();
-        ContaService service = new ContaService(repository);
-        Menu menu = new Menu(service);
+		ContaRepository repository = new ContaRepository();
+		ContaService service = new ContaService(repository);
+		Menu menu = new Menu(service);
 
-        menu.iniciar();
-    }
+		menu.iniciar();
+	}
 }

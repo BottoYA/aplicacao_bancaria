@@ -3,270 +3,339 @@ package com.aplicacao_bancaria.ui;
 import java.util.Scanner;
 
 import com.aplicacao_bancaria.model.Conta;
+import com.aplicacao_bancaria.model.ContaCorrente;
+import com.aplicacao_bancaria.model.Transacao;
 import com.aplicacao_bancaria.service.ContaService;
 import com.aplicacao_bancaria.util.CSVExporter;
+import com.aplicacao_bancaria.util.InputUtil;
 import com.aplicacao_bancaria.util.Validador;
 
 public class Menu {
 
-    private Scanner scanner = new Scanner(System.in);
-    private ContaService service;
+	private Scanner scanner = new Scanner(System.in);
+	private InputUtil input = new InputUtil(scanner);
+	private ContaService service;
 
-    public Menu(ContaService service) {
-        this.service = service;
-    }
+	public Menu(ContaService service) {
+		this.service = service;
+	}
 
-    public void iniciar() {
+	public void iniciar() {
+		while (true) {
+			System.out.println("\n--- Bem-vindo ao Sistema Bancário! Escolha uma opção para prosseguir:");
+			System.out.println("1 - Criar conta");
+			System.out.println("2 - Login");
+			System.out.println("0 - Sair");
 
-        int opcao;
+			int opcao;
 
-        do {
-            System.out.println("\nBem-vindo ao Sistema Bancário! \nEscolha uma opção para prosseguir:");
-            System.out.println("1 - Criar conta");
-            System.out.println("2 - Login");
-            System.out.println("0 - Sair");
+			opcao = input.lerInt("");
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
+			switch (opcao) {
+			case 1:
+				criarConta();
+				break;
+			case 2:
+				realizarLogin();
+				break;
+			case 0:
+				System.out.println("\n--- Encerrando...");
+				return;
+			default:
+				System.out.println("\n--- Opção inválida! Tente novamente.");
+			}
+		}
+	}
 
-            switch (opcao) {
-                case 1:
-                    criarConta();
-                    break;
-                case 2:
-                    realizarLogin();
-                    break;
-                case 0:
-                    System.out.println("\nEncerrando...");
-                    break;
-                default:
-                    System.out.println("\nOpção inválida! Tente novamente.");
-            }
+	private void criarConta() {
+		while (true) {
+			System.out.println("\n-- CRIAÇÃO DE CONTA --");
 
-        } while (opcao != 0);
-    }
-    
-    private void criarConta() {
-        while (true) {
-            System.out.println("\n-- CRIAÇÃO DE CONTA --");
-            
-            String nome;
-            
-            while (true) {
-                System.out.print("\nNome (ou 0 para voltar):\n");
-                nome = scanner.nextLine();
+			String nome;
 
-                if (nome.equals("0")) return;
+			while (true) {
+				nome = input.lerString("--- Nome (ou 0 para voltar):");
 
-                if (nome.trim().isEmpty()) {
-                    System.out.println("Nome não pode ser vazio!");
-                } else if (!Validador.validarNome(nome)) {
-                    System.out.println("Nome inválido!");
-                } else {
-                    break;
-                }
-            }
+				if (nome.equals("0"))
+					return;
 
-            String cpf;
-            while (true) {
-                System.out.print("\n-- Insira seu CPF:\n");
-                cpf = scanner.nextLine();
+				if (nome.trim().isEmpty()) {
+					System.out.println("--- Nome não pode ser vazio!");
+				} else if (!Validador.validarNome(nome)) {
+					System.out.println("--- Nome inválido!");
+				} else {
+					break;
+				}
+			}
 
-                if (cpf.equals("0")) return;
+			String cpf;
+			while (true) {
+				cpf = input.lerString("\n-- Insira seu CPF:");
 
-                if (!Validador.validarCPF(cpf)) {
-                    System.out.println("CPF inválido!");
-                } else {
-                    break;
-                }
-            }
+				if (cpf.equals("0"))
+					return;
 
-            System.out.print("\n-- Insira uma Senha:\n");
-            String senha = scanner.nextLine();
+				if (!Validador.validarCPF(cpf)) {
+					System.out.println("--- CPF inválido!");
+				} else if (service.buscarPorCpf(cpf) != null) {
+					System.out.println("--- CPF já cadastrado!");
+				} else {
+					break;
+				}
+			}
 
-            System.out.print("\n-- Número da conta:\n");
-            String numero = scanner.nextLine();
+			String senha = input.lerString("\n-- Insira uma Senha:");
 
-            System.out.print("\n-- Agência:\n");
-            String agencia = scanner.nextLine();
+			String numero;
+			while (true) {
+				numero = input.lerString("\n-- Número da conta:");
 
-            String tipo;
-            while (true) {
-                System.out.print("\n-- Tipo (corrente/poupanca):\n");
-                tipo = scanner.nextLine();
+				if (numero.equals("0"))
+					return;
 
-                if (tipo.equals("0")) return;
+				if (!Validador.validarNumeroConta(numero)) {
 
-                if (!Validador.validarTipoConta(tipo)) {
-                    System.out.println("Tipo inválido!");
-                } else {
-                    break;
-                }
-            }
+					System.out.println("\n--- Número da conta inválido!");
+					System.out.println("--- Digite apenas números.");
 
-            Conta conta = service.criarConta(nome, cpf, senha, numero, agencia, tipo);
+				} else if (service.buscarPorNumero(numero) != null) {
+					System.out.println("\n--- Número de conta já cadastrado!");
+				} else {
+					break;
+				}
+			}
 
-            if (conta == null) {
-                System.out.println("\n--- CPF já cadastrado! Tente novamente.");
-            } else {
-                System.out.println("\n--- Conta criada com sucesso!");
-                break; 
-            }
-        }
-    }
-    
-    private void realizarLogin() {
-        while (true) {
-            System.out.println("\n-- LOGIN --");
-            System.out.print("\nCPF (ou 0 para voltar):\n");
-            
-            String cpf;
-            while (true) {
-                System.out.print("\nCPF (apenas números ou 0 para voltar):\n");
-                cpf = scanner.nextLine();
+			String agencia = input.lerString("\n-- Agência:");
 
-                if (cpf.equals("0")) return;
+			String tipo;
+			while (true) {
+				System.out.print("\n-- Tipo (corrente/poupanca):\n");
+				tipo = scanner.nextLine();
 
-                if (!Validador.validarCPF(cpf)) {
-                    System.out.println("\n--- CPF inválido! Digite 11 números.");
-                } else {
-                    break;
-                }
-            }
+				if (tipo.equals("0"))
+					return;
 
-            System.out.print("\nSenha:\n");
-            String senha = scanner.nextLine();
-            Conta conta = service.login(cpf, senha);
+				if (!Validador.validarTipoConta(tipo)) {
+					System.out.println("--- Tipo inválido!");
+				} else {
+					break;
+				}
+			}
 
-            if (conta == null) {
-                System.out.println("\n--- CPF ou senha inválidos! Tente novamente.");
-            } else {
-                System.out.println("\n--- Login realizado com sucesso!");
-                menuConta(conta);
-                break;
-            }
-        }
-    }
-    
-    private void menuConta(Conta conta) {
-        int opcao;
-        do {
-            System.out.println("\n-- LOGADO EM: " + conta.getNumeroConta() 
-            + ", BEM-VINDO " + conta.getCliente().getNome()  
-            + "! ESCOLHA UMA OPÇÃO:");
-            System.out.println("1 - Ver saldo");
-            System.out.println("2 - Depositar");
-            System.out.println("3 - Sacar");
-            System.out.println("4 - Transferir");
-            System.out.println("5 - Ver histórico");
-            System.out.println("6 - Exportar CSV");
-            System.out.println("0 - Logout");
+			Conta conta = service.criarConta(nome, cpf, senha, numero, agencia, tipo);
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
+			if (conta == null) {
+				System.out.println("\n--- CPF já cadastrado! Tente novamente.");
+			} else {
+				System.out.println("\n--- Conta criada com sucesso!");
+				break;
+			}
+		}
+	}
 
-            switch (opcao) {
-                case 1:
-                    System.out.println("\nSaldo: R$ " + conta.getSaldo());
-                    break;
-                case 2:
-                    depositar(conta);
-                    break;
-                case 3:
-                    sacar(conta);
-                    break;
-                case 4:
-                    transferir(conta);
-                    break;
-                case 5:
-                    mostrarHistorico(conta);
-                    break;
-                case 6:
-                    CSVExporter.exportar(conta);
-                    break;
-                case 0:
-                    System.out.println("\n--- Saindo da conta...");
-                    break;
-                default:
-                    System.out.println("\n--- Opção inválida!");
-            }
+	private void realizarLogin() {
+		while (true) {
+			System.out.println("\n-- LOGIN --");
+			System.out.print("\nCPF (ou 0 para voltar):\n");
 
-        } while (opcao != 0);
-    }
-    
-    private void depositar(Conta conta) {
+			String cpf;
+			while (true) {
+				cpf = input.lerString("\n--- CPF (apenas números ou 0 para voltar):");
 
-    	System.out.print("\n--- Digite o valor (ou 0 para voltar):\n");
-    	double valor = scanner.nextDouble();
-    	scanner.nextLine();
-    	if (valor == 0) return;
+				if (cpf.equals("0"))
+					return;
 
-        conta.depositar(valor);
-        System.out.println("\n--- Depósito realizado com sucesso!");
-    }
-    
-    private void sacar(Conta conta) {
+				if (!Validador.validarCPF(cpf)) {
+					System.out.println("\n--- CPF inválido! Digite 11 números.");
+				} else {
+					break;
+				}
+			}
 
-        while (true) {
+			String senha = input.lerString("\nSenha:");
 
-            System.out.print("\n--- Digite o valor (ou 0 para voltar):\n");
-            double valor = scanner.nextDouble();
-            scanner.nextLine();
+			Conta conta = service.login(cpf, senha);
 
-            if (valor == 0) return;
-            
-            boolean sucesso = conta.sacar(valor);
+			if (conta == null) {
+				System.out.println("\n--- CPF ou senha inválidos! Tente novamente.");
+			} else {
+				System.out.println("\n--- Login realizado com sucesso!");
+				menuConta(conta);
+				break;
+			}
+		}
+	}
 
-            if (!sucesso) {
-                System.out.println("\n--- Saldo insuficiente! Tente novamente.");
-            } else {
-                System.out.println("\n--- Saque realizado com sucesso!");
-                break;
-            }
-        }
-    }
-    
-    private void transferir(Conta conta) {
+	private void menuConta(Conta conta) {
+		int opcao;
+		do {
+			System.out.println("\n-- LOGADO EM: " + conta.getNumeroConta() + ", BEM-VINDO " + conta.getCliente().getNome() + "! ESCOLHA UMA OPÇÃO:");
+			System.out.println("1 - Ver saldo");
+			System.out.println("2 - Depositar");
+			System.out.println("3 - Sacar");
+			System.out.println("4 - Ver limite");
+			System.out.println("5 - Alterar limite");
+			System.out.println("6 - Transferir");
+			System.out.println("7 - Ver histórico");
+			System.out.println("8 - Exportar CSV");
+			System.out.println("0 - Logout");
 
-        while (true) {
+			opcao = input.lerInt("");
 
-            System.out.print("\n--- Digite a conta de destino (ou 0 para voltar):\n");
-            String destino = scanner.nextLine();
+			switch (opcao) {
+			case 1:
+				System.out.println("\n--- Saldo: R$ " + conta.getSaldo());
+				break;
+			case 2:
+				depositar(conta);
+				break;
+			case 3:
+				sacar(conta);
+				break;
+			case 4:
+				verLimite(conta);
+				break;
+			case 5:
+				alterarLimite(conta);
+				break;
+			case 6:
+				transferir(conta);
+				break;
+			case 7:
+				mostrarHistorico(conta);
+				break;
+			case 8:
+				CSVExporter.exportar(conta);
+				break;
+			case 0:
+				System.out.println("\n--- Saindo da conta...");
+				break;
+			default:
+				System.out.println("\n--- Opção inválida!");
+			}
+		} while (opcao != 0);
+	}
 
-            if (destino.equals("0")) return;
+	private void depositar(Conta conta) {
+		while (true) {
+			double valor = input.lerDouble("\n--- Digite o valor (ou 0 para voltar):");
 
-            //VALIDAÇÃO ANTES DO VALOR
-            Conta contaDestino = service.buscarPorNumero(destino);
+			if (valor == 0)
+				return;
 
-            if (contaDestino == null) {
-                System.out.println("\n--- Conta não encontrada!");
-                continue; // volta pro início
-            }
+			if (valor < 0) {
+				System.out.println("\n--- O valor não pode ser negativo!");
+				continue;
+			}
 
-            System.out.print("\n--- Digite o valor:\n");
-            double valor = scanner.nextDouble();
-            scanner.nextLine(); // limpa buffer
+			conta.depositar(valor);
+			System.out.println("\n--- Depósito realizado com sucesso!");
+			break;
+		}
+	}
 
-            String resultado = service.transferir(conta.getNumeroConta(), destino, valor);
+	private void sacar(Conta conta) {
+		while (true) {
 
-            if (!resultado.equals("OK")) {
-                System.out.println("\nErro: " + resultado);
-            } else {
-                System.out.println("\n--- Transferência realizada com sucesso!");
-                break;
-            }
-        }
-    }
-    
-    private void mostrarHistorico(Conta conta) {
+			double valor = input.lerDouble("\n--- Digite o valor (ou 0 para voltar):");
 
-        System.out.println("\n=== HISTÓRICO ===");
+			if (valor == 0)
+				return;
 
-        if (conta.getHistorico().isEmpty()) {
-            System.out.println("\n--- Nenhuma transação encontrada.");
-            return;
-        }
+			if (valor < 0) {
+				System.out.println("\n--- O valor não pode ser negativo!");
+				continue;
+			}
 
-        conta.getHistorico().forEach(t -> System.out.println(t));
-    }
+			boolean sucesso = conta.sacar(valor);
+
+			if (!sucesso) {
+				System.out.println("\n--- Saldo insuficiente!");
+			} else {
+				System.out.println("\n--- Saque realizado com sucesso!");
+				break;
+			}
+		}
+	}
+
+	private void verLimite(Conta conta) {
+
+		if (!(conta instanceof ContaCorrente)) {
+			System.out.println("\n--- Esta conta não possui limite.");
+		} else {
+			System.out.println("\n--- Limite disponível: R$ " + conta.getLimite());
+
+			conta.getHistorico().add(new Transacao("CONSULTA LIMITE", conta.getLimite(), "Consulta de limite realizada"));
+		}
+	}
+
+	private void alterarLimite(Conta conta) {
+		if (!(conta instanceof ContaCorrente)) {
+			System.out.println("\n--- Esta conta não permite alteração de limite.");
+			return;
+		}
+
+		while (true) {
+			double novoLimite = input.lerDouble("\n--- Digite o novo limite (ou 0 para voltar):");
+
+			if (novoLimite == 0)
+				return;
+
+			if (novoLimite < 0) {
+				System.out.println("\n--- O limite não pode ser negativo!");
+				continue;
+			}
+
+			boolean sucesso = conta.alterarLimite(novoLimite);
+
+			if (!sucesso) {
+				System.out.println("\n--- Limite inválido!");
+			} else {
+				System.out.println("\n--- Limite alterado com sucesso!");
+				break;
+			}
+		}
+	}
+
+	private void transferir(Conta conta) {
+		while (true) {
+			String destino = input.lerString("\n--- Digite a conta de destino (ou 0 para voltar):");
+			if (destino.equals("0"))
+				return;
+
+			Conta contaDestino = service.buscarPorNumero(destino);
+
+			if (contaDestino == null) {
+				System.out.println("\n--- Conta não encontrada!");
+				continue;
+			}
+
+			double valor = input.lerDouble("\n--- Digite o valor:");
+
+			if (valor <= 0) {
+				System.out.println("\n--- Valor inválido!");
+				continue;
+			}
+
+			String resultado = service.transferir(conta.getNumeroConta(), destino, valor);
+
+			if (!resultado.equals("OK")) {
+				System.out.println("\n--- Erro: " + resultado);
+			} else {
+				System.out.println("\n--- Transferência realizada com sucesso!");
+				break;
+			}
+		}
+	}
+
+	private void mostrarHistorico(Conta conta) {
+
+		System.out.println("\n--- HISTÓRICO ---");
+
+		if (conta.getHistorico().isEmpty()) {
+			System.out.println("\n--- Nenhuma transação encontrada.");
+			return;
+		}
+		conta.getHistorico().forEach(t -> System.out.println(t));
+	}
 }

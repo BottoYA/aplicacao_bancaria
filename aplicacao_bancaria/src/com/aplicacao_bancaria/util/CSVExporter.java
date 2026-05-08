@@ -7,23 +7,21 @@ import com.aplicacao_bancaria.model.Transacao;
 
 public class CSVExporter {
 
-    public static void exportar(Conta conta) {
+	public static void exportar(Conta conta) {
 
-        String caminho = System.getProperty("user.home") + "/Downloads/historico_" 
-                        + conta.getNumeroConta() + ".csv";
+		String caminho = System.getProperty("user.home") + "/Downloads/historico_" + conta.getNumeroConta() + ".csv";
 
-        try (FileWriter writer = new FileWriter(caminho)) {
+		try (FileWriter writer = new FileWriter(caminho)) {
+			writer.write("Data;Hora;Tipo;Valor;Descricao\n");
 
-        	writer.write("Data;Hora;Tipo;Valor;Descricao\n");
+			for (Transacao t : conta.getHistorico()) {
+				writer.write(t.toCSV() + "\n");
+			}
 
-            for (Transacao t : conta.getHistorico()) {
-                writer.write(t.toCSV() + "\n");
-            }
+			System.out.println("\nExportado para: " + caminho);
 
-            System.out.println("\nExportado para: " + caminho);
-
-        } catch (Exception e) {
-            System.out.println("Erro ao exportar CSV.");
-        }
-    }
+		} catch (Exception e) {
+			System.out.println("Erro ao exportar CSV.");
+		}
+	}
 }
